@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Appeal History - Work Place</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav class="navbar"><a class="logo" href="index.html"><span>W</span> Work Place</a><div class="navlinks"><a href="index.html">Dashboard</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a><a href="profile.html">Profile</a></div><div class="user-area"><span class="user-name">User</span></div></nav>
+<main class="container">
+<section class="section"><h2>Submit an Appeal</h2><div class="notice">If you believe a report against you is false or a job dispute needs review, submit an appeal.</div>
+<form onsubmit="addAppeal(event)" class="form-grid"><div class="field full"><label>Job / Case</label><input name="job" required placeholder="Job title or case name"></div><div class="field full"><label>Reason</label><textarea name="reason" required placeholder="Explain what happened..."></textarea></div><div class="field full"><button class="btn btn-red">Submit Appeal</button></div></form></section>
+<section class="section"><h2>Appeal History</h2><div id="appealList"></div></section>
+</main><footer class="footer"><h2>Work Place</h2><p>Find Work. Post Work. Get Things Done.</p></footer><script src="script.js"></script>
+</body></html>

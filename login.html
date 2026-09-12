@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Sign Up - Work Place</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .verify-box{margin-top:8px;padding:18px;border:1px solid #dbe3ee;border-radius:14px;background:#f8fafc}
+    .verify-box h3{margin:0 0 6px}.verify-box p{font-size:13px;color:#64748b;margin:0 0 14px}
+    .verify-row{display:flex;gap:10px;align-items:center}.verify-row input{flex:1}
+    .status{font-size:13px;font-weight:700;margin-top:8px}.status.ok{color:#15803d}.status.wait{color:#b45309}
+    .otp-panel{display:none;margin-top:18px;padding:20px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe}
+    .otp-panel.show{display:block}.otp-panel h3{margin:0 0 6px}.otp-panel p{margin:5px 0;color:#475569;font-size:13px}
+    .otp-card{background:white;border:1px solid #dbe3ee;border-radius:12px;padding:14px}
+    .verification-success{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#dcfce7;color:#166534;font-weight:700}
+    @media(max-width:600px){.verify-row{flex-direction:column;align-items:stretch}}
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a class="logo" href="index.html"><span>W</span> Work Place</a>
+  <a class="btn btn-light" href="index.html">Dashboard</a>
+</nav>
+
+<main class="container" style="max-width:600px">
+<section class="section">
+  <h2 id="formTitle">Login</h2>
+  <div class="notice">Sign Up requires a <b>verified email address</b>. Phone OTP is not required.</div>
+
+  <form id="authForm" class="form-grid">
+    <div id="nameField" class="field full hidden">
+      <label for="name">Full Name</label><input id="name" placeholder="Your full name">
+    </div>
+
+    <div class="field full">
+      <label for="identity" id="identityLabel">Email or Phone Number</label>
+      <input id="identity" autocomplete="username" placeholder="Email or phone number" required>
+    </div>
+
+    <div id="signupPhoneField" class="field full hidden">
+      <label for="phone">Phone Number</label>
+      <div class="phone-row">
+        <div class="country-picker" id="countryPicker">
+          <input id="countrySearch" type="text" autocomplete="off" placeholder="Country name or code" aria-label="Search country">
+          <input id="countryCode" type="hidden" value="+880">
+          <div id="countryResults" class="country-results"></div>
+        </div>
+        <input id="phone" inputmode="tel" autocomplete="tel" placeholder="Phone number without country code">
+      </div>
+    </div>
+
+    <div class="field full">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Password" required>
+    </div>
+
+    <div id="typeField" class="field full hidden">
+      <label for="type">Account Type</label>
+      <select id="type"><option value="Customer">Customer</option><option value="Worker">Worker</option></select>
+    </div>
+
+    <div id="photoField" class="field full hidden">
+      <div class="verify-box">
+        <h3>Profile Photo</h3>
+        <p>Every Work Place account must have a profile photo. Use a clear JPG, PNG, or WebP photo.</p>
+        <input id="profilePhoto" type="file" accept="image/jpeg,image/png,image/webp" required>
+        <div id="photoPreview" class="photo-preview" aria-live="polite">No photo selected</div>
+      </div>
+    </div>
+
+    <div id="identityDocField" class="field full hidden">
+      <div class="verify-box">
+        <h3>Identity Document</h3>
+        <p>Your identity document number can be used for only one Work Place account.</p>
+        <label for="documentType">Document Type</label>
+        <select id="documentType">
+          <option value="NID">National ID / NID</option>
+          <option value="Passport">Passport</option>
+          <option value="Birth Certificate">Birth Certificate</option>
+          <option value="Other Government ID">Other Government ID</option>
+        </select>
+        <label for="documentNumber">Document Number</label>
+        <input id="documentNumber" autocomplete="off" placeholder="Enter your document number">
+        <div class="demo-note">🔒 The document number is checked for duplicate accounts. In the production version, identity data should be handled by a secure server.</div>
+      </div>
+    </div>
+
+    <div id="signupVerifyField" class="field full hidden">
+      <div class="verify-box">
+        <h3>Email Verification</h3>
+        <p>Your verification code will be sent to your email address. Phone OTP is not required.</p>
+        <button type="button" class="btn" id="sendOtpBtn">Send Email Verification Code</button>
+        <div id="otpPanel" class="otp-panel">
+          <h3>Enter Email Verification Code</h3>
+          <p>The 6-digit code expires in 10 minutes.</p>
+          <div class="otp-card">
+            <label for="emailOtp">Email OTP</label>
+            <div class="verify-row"><input id="emailOtp" inputmode="numeric" maxlength="6" placeholder="6-digit code"><button type="button" class="btn" id="verifyEmailBtn">Verify Email</button></div>
+            <div id="emailStatus" class="status wait">Not verified</div>
+          </div>
+          <div id="verificationSuccess" class="verification-success">✓ Email verified successfully.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field full"><button class="btn" type="submit" id="submitBtn">Login</button></div>
+  </form>
+
+  <p style="text-align:center"><span id="toggleText">Don't have an account?</span> <a href="#" id="toggle" style="color:#1677e8;font-weight:700">Sign Up</a></p>
+</section>
+</main>
+
+<script src="script.js"></script>
+<script>
+let signup=false, emailVerified=false, challengeId=null, verificationToken=null;
+const API_BASE = window.location.origin;
+const form=document.getElementById("authForm"), title=document.getElementById("formTitle"), nameField=document.getElementById("nameField"), signupPhoneField=document.getElementById("signupPhoneField"), typeField=document.getElementById("typeField"), identityDocField=document.getElementById("identityDocField"), photoField=document.getElementById("photoField"), signupVerifyField=document.getElementById("signupVerifyField"), identityLabel=document.getElementById("identityLabel"), identity=document.getElementById("identity"), submitBtn=document.getElementById("submitBtn"), toggle=document.getElementById("toggle"), toggleText=document.getElementById("toggleText");
+const sendOtpBtn=document.getElementById("sendOtpBtn"), otpPanel=document.getElementById("otpPanel"), emailOtp=document.getElementById("emailOtp"), emailStatus=document.getElementById("emailStatus"), verificationSuccess=document.getElementById("verificationSuccess"), profilePhoto=document.getElementById("profilePhoto"), photoPreview=document.getElementById("photoPreview");
+let photoData="";
+function setMode(isSignup){signup=isSignup;title.textContent=signup?"Create Account":"Login";nameField.classList.toggle("hidden",!signup);signupPhoneField.classList.toggle("hidden",!signup);typeField.classList.toggle("hidden",!signup);identityDocField.classList.toggle("hidden",!signup);photoField.classList.toggle("hidden",!signup);signupVerifyField.classList.toggle("hidden",!signup);identityLabel.textContent=signup?"Email Address":"Email or Phone Number";identity.type=signup?"email":"text";identity.placeholder=signup?"you@example.com":"Email or phone number";submitBtn.textContent=signup?"Create Account":"Login";toggleText.textContent=signup?"Already have an account?":"Don't have an account?";toggle.textContent=signup?"Login":"Sign Up";document.getElementById("phone").required=signup;document.getElementById("name").required=signup;profilePhoto.required=signup;if(!signup)resetVerification();}
+toggle.onclick=e=>{e.preventDefault();setMode(!signup)};
+const countries=[["Bangladesh","🇧🇩","+880"],["India","🇮🇳","+91"],["United States","🇺🇸","+1"],["United Kingdom","🇬🇧","+44"],["Saudi Arabia","🇸🇦","+966"],["United Arab Emirates","🇦🇪","+971"],["Qatar","🇶🇦","+974"],["Kuwait","🇰🇼","+965"],["Oman","🇴🇲","+968"],["Malaysia","🇲🇾","+60"],["Singapore","🇸🇬","+65"],["Australia","🇦🇺","+61"],["Japan","🇯🇵","+81"],["South Korea","🇰🇷","+82"],["Germany","🇩🇪","+49"],["France","🇫🇷","+33"],["Italy","🇮🇹","+39"],["Russia","🇷🇺","+7"],["China","🇨🇳","+86"],["Pakistan","🇵🇰","+92"],["Sri Lanka","🇱🇰","+94"],["Nepal","🇳🇵","+977"],["Afghanistan","🇦🇫","+93"],["Argentina","🇦🇷","+54"],["Brazil","🇧🇷","+55"],["Canada","🇨🇦","+1"],["Egypt","🇪🇬","+20"],["Indonesia","🇮🇩","+62"],["Iran","🇮🇷","+98"],["Iraq","🇮🇶","+964"],["Ireland","🇮🇪","+353"],["Jordan","🇯🇴","+962"],["Kenya","🇰🇪","+254"],["Lebanon","🇱🇧","+961"],["Maldives","🇲🇻","+960"],["Mexico","🇲🇽","+52"],["Morocco","🇲🇦","+212"],["Myanmar","🇲🇲","+95"],["Netherlands","🇳🇱","+31"],["New Zealand","🇳🇿","+64"],["Nigeria","🇳🇬","+234"],["Norway","🇳🇴","+47"],["Philippines","🇵🇭","+63"],["Poland","🇵🇱","+48"],["Portugal","🇵🇹","+351"],["South Africa","🇿🇦","+27"],["Spain","🇪🇸","+34"],["Sweden","🇸🇪","+46"],["Switzerland","🇨🇭","+41"],["Thailand","🇹🇭","+66"],["Turkey","🇹🇷","+90"],["Ukraine","🇺🇦","+380"],["Vietnam","🇻🇳","+84"]];
+const countrySearch=document.getElementById("countrySearch"),countryResults=document.getElementById("countryResults"),countryCode=document.getElementById("countryCode");
+function renderCountries(q=""){q=q.trim().toLowerCase().replace(/\s/g,"");const matches=countries.filter(([name,flag,code])=>{const n=name.toLowerCase().replace(/\s/g,"");return !q||n.startsWith(q)||code.replace("+","").startsWith(q)}).slice(0,15);countryResults.innerHTML=matches.map(([name,flag,code])=>`<button type="button" class="country-option" data-code="${code}"><span>${flag} ${name}</span><b>${code}</b></button>`).join("");countryResults.classList.toggle("show",matches.length>0)}
+countrySearch.addEventListener("focus",()=>renderCountries(countrySearch.value));countrySearch.addEventListener("input",()=>renderCountries(countrySearch.value));countryResults.addEventListener("click",e=>{const b=e.target.closest(".country-option");if(!b)return;countryCode.value=b.dataset.code;countrySearch.value=b.querySelector("span").textContent.trim()+" "+b.dataset.code;countryResults.classList.remove("show")});document.addEventListener("click",e=>{if(!e.target.closest("#countryPicker"))countryResults.classList.remove("show")});
+function getSignupData(){const email=identity.value.trim().toLowerCase();const phone=countryCode.value+document.getElementById("phone").value.trim().replace(/\s|-/g,"");return {email,phone};}
+function resetVerification(){emailVerified=false;challengeId=null;verificationToken=null;photoData="";otpPanel.classList.remove("show");verificationSuccess.style.display="none";emailOtp.value="";emailStatus.textContent="Not verified";emailStatus.className="status wait";photoPreview.textContent="No photo selected";profilePhoto.value="";}
+profilePhoto.addEventListener("change",()=>{const file=profilePhoto.files?.[0];photoData="";if(!file){photoPreview.textContent="No photo selected";return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)){alert("Please choose a JPG, PNG, or WebP photo.");profilePhoto.value="";return}if(file.size>2*1024*1024){alert("Please choose a photo smaller than 2 MB.");profilePhoto.value="";return}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const max=700;const scale=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));c.getContext("2d").drawImage(img,0,0,c.width,c.height);photoData=c.toDataURL("image/jpeg",0.82);photoPreview.innerHTML=`<img src="${photoData}" alt="Profile photo preview">`;};img.src=reader.result};reader.readAsDataURL(file);});
+async function api(path,body){const r=await fetch(API_BASE+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok||!data.ok)throw new Error(data.message||"Request failed");return data;}
+sendOtpBtn.onclick=async()=>{const {email,phone}=getSignupData();if(!email||!email.includes("@")){alert("Enter a valid email address first.");return}if(!/^\+\d{7,15}$/.test(phone)){alert("Enter a valid phone number with country code first.");return}sendOtpBtn.disabled=true;sendOtpBtn.textContent="Sending...";try{const data=await api("/api/auth/send-otp",{email,phone});challengeId=data.challengeId;emailVerified=false;verificationToken=null;emailStatus.textContent="Code sent to your email";emailStatus.className="status wait";otpPanel.classList.add("show");alert("A verification code has been sent to your email.");}catch(e){alert(e.message)}finally{sendOtpBtn.disabled=false;sendOtpBtn.textContent="Send Email Verification Code"}};
+document.getElementById("verifyEmailBtn").onclick=async()=>{if(!challengeId){alert("Please request the email verification code first.");return}try{const d=await api("/api/auth/verify-otp",{challengeId,code:emailOtp.value.trim()});emailVerified=!!d.emailVerified;verificationToken=d.verificationToken||verificationToken;if(emailVerified){emailStatus.textContent="✓ Email Verified";emailStatus.className="status ok";verificationSuccess.style.display="block";}}catch(e){alert(e.message)}};
+form.onsubmit=async e=>{e.preventDefault();const password=document.getElementById("password").value.trim();if(signup){const name=document.getElementById("name").value.trim();const {email,phone}=getSignupData();const type=document.getElementById("type").value;const documentType=document.getElementById("documentType").value;const documentNumber=document.getElementById("documentNumber").value.trim();if(!name||!email||!phone||!password||!documentNumber||!photoData){alert("Please fill in all fields and upload your profile photo.");return}if(password.length<8){alert("Password must be at least 8 characters.");return}if(!email.includes("@")){alert("Please enter a valid email address.");return}if(!/^\+\d{7,15}$/.test(phone)){alert("Please enter a valid phone number with country code.");return}if(!emailVerified||!verificationToken){alert("Please verify your email before creating the account.");otpPanel.classList.add("show");return}submitBtn.disabled=true;submitBtn.textContent="Creating...";try{const data=await api("/api/auth/signup",{name,email,phone,password,type,documentType,documentNumber,photoData,verificationToken});setUser(data.user);alert("Account created successfully! Email is verified.");location.href="index.html"}catch(err){alert(err.message)}finally{submitBtn.disabled=false;submitBtn.textContent="Create Account"}return}const loginValue=document.getElementById("identity").value.trim();submitBtn.disabled=true;submitBtn.textContent="Logging in...";try{const data=await api("/api/auth/login",{identity:loginValue,password});setUser(data.user);alert("Login successful!");location.href="index.html"}catch(err){alert(err.message)}finally{submitBtn.disabled=false;submitBtn.textContent="Login"}};
+setMode(false);
+</script>
+</script>
+</body>
+</html>

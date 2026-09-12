@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Work Place - Payments</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="navbar"><a class="logo" href="index.html"><span>W</span> Work Place</a><div class="navlinks"><a href="index.html">Home</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a><a href="payments.html">Payments</a><a href="profile.html">Profile</a></div><div class="user-area"><span class="user-name">User</span><a class="btn login-link" href="login.html">Login / Sign Up</a></div></nav>
+<main class="container">
+<section class="section"><h1>💳 Payment Center</h1><p class="muted">Pay for a job using e-payment or bank transfer. Your payment history is saved here.</p><div id="callbackMessage"></div></section>
+<section class="payment-grid">
+<div class="payment-card">
+<h3>1. Job Payment</h3>
+<form id="paymentForm">
+<div class="field"><label>Job title</label><input id="jobTitle" placeholder="e.g. House Cleaning" required></div>
+<div class="field"><label>Job ID (optional)</label><input id="jobId" placeholder="e.g. 12345"></div>
+<div class="field"><label>Amount (৳)</label><input id="amount" type="number" min="1" step="0.01" placeholder="1500" required></div>
+<div class="field"><label>Payment method</label><div class="payment-method"><button type="button" id="eBtn" class="btn btn-purple" onclick="selectMethod('E_PAYMENT')">E-Payment</button><button type="button" id="bBtn" class="btn btn-light" onclick="selectMethod('BANK_TRANSFER')">Bank Transfer</button></div></div>
+<div id="bankFields" class="hidden">
+<div class="notice">After sending the money to the bank account shown on the right, enter the bank transaction/reference ID below. A screenshot/proof is optional but recommended.</div>
+<div class="field"><label>Bank transaction ID</label><input id="transactionId" placeholder="e.g. FT123456789"></div>
+<div class="field"><label>Payment proof image (optional)</label><input id="proof" type="file" accept="image/jpeg,image/png,image/webp"><div class="small">Do not upload card PIN, password or other sensitive credentials.</div></div>
+</div>
+<div id="customerFields">
+<div class="field"><label>Your name</label><input id="customerName" placeholder="Your full name"></div>
+<div class="field"><label>Your email</label><input id="customerEmail" type="email" placeholder="you@example.com"></div>
+<div class="field"><label>Your phone</label><input id="customerPhone" placeholder="+8801XXXXXXXXX"></div>
+</div>
+<button class="btn btn-green" type="submit" id="payBtn">Continue to E-Payment →</button>
+</form>
+</div>
+<div class="payment-card">
+<h3>2. Bank Transfer Details</h3><div id="bankInfo" class="bank-box">Loading bank details...</div>
+<p class="small" style="margin-top:12px">Bank transfers are marked <b>Pending Verification</b> until an administrator verifies the transaction.</p>
+</div>
+</section>
+<section class="section"><h2>Payment History</h2><div id="history">Login to see your payment history.</div></section>
+</main>
+<footer class="footer"><h2>Work Place</h2><p>Find Work. Post Work. Get Things Done.</p></footer>
+<script src="script.js"></script>
+<script>
+let method='E_PAYMENT';
+function selectMethod(m){method=m;document.getElementById('eBtn').classList.toggle('active',m==='E_PAYMENT');document.getElementById('bBtn').classList.toggle('active',m==='BANK_TRANSFER');document.getElementById('bankFields').classList.toggle('hidden',m!=='BANK_TRANSFER');document.getElementById('payBtn').textContent=m==='E_PAYMENT'?'Continue to E-Payment →':'Submit Bank Payment →';document.getElementById('customerFields').classList.toggle('hidden',m!=='E_PAYMENT');}
+function user(){return getUser()}
+async function loadBank(){const r=await fetch('/api/payment/config');const d=await r.json();const b=d.bank;document.getElementById('bankInfo').innerHTML=`<div class="bank-row"><b>Bank</b><span>${esc(b.name)}</span></div><div class="bank-row"><b>Account Name</b><span>${esc(b.accountName)}</span></div><div class="bank-row"><b>Account Number</b><span>${esc(b.accountNumber)}</span></div><div class="bank-row"><b>Branch</b><span>${esc(b.branch)}</span></div><div class="bank-row"><b>Routing</b><span>${esc(b.routing)}</span></div>`;}
+async function submitPayment(e){e.preventDefault();if(!requireLogin())return;const u=user();const jobTitle=document.getElementById('jobTitle').value.trim();const jobId=document.getElementById('jobId').value.trim();const amount=Number(document.getElementById('amount').value);if(!jobTitle||!amount||amount<=0){alert('Please enter job title and amount.');return;}const btn=document.getElementById('payBtn');btn.disabled=true;try{if(method==='E_PAYMENT'){const email=document.getElementById('customerEmail').value.trim()||u.email;const phone=document.getElementById('customerPhone').value.trim()||u.phone;const name=document.getElementById('customerName').value.trim()||u.name;const r=await fetch('/api/payments/ssl/initiate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:u.id,jobId,jobTitle,amount,customerName:name,customerEmail:email,customerPhone:phone})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'E-payment could not start.');location.href=d.redirectUrl;return;}const transactionId=document.getElementById('transactionId').value.trim();if(!transactionId)throw new Error('Bank transaction ID is required.');let proofData='';const file=document.getElementById('proof').files[0];if(file){if(file.size>700000)throw new Error('Proof image should be smaller than 700 KB.');proofData=await toData(file);}const r=await fetch('/api/payments/bank-transfer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:u.id,jobId,jobTitle,amount,transactionId,proofData})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'Bank payment submission failed.');alert('Bank payment submitted. Status: Pending Verification.');e.target.reset();selectMethod('BANK_TRANSFER');loadHistory();}catch(err){alert(err.message)}finally{btn.disabled=false}}
+function toData(file){return new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>resolve(rd.result);rd.onerror=reject;rd.readAsDataURL(file)})}
+async function loadHistory(){const u=user();if(!u){document.getElementById('history').innerHTML='Please login first.';return}const r=await fetch('/api/payments/'+u.id);const d=await r.json();if(!d.payments?.length){document.getElementById('history').innerHTML='<div class="empty">No payments yet.</div>';return}document.getElementById('history').innerHTML='<div style="overflow:auto"><table class="payment-table"><thead><tr><th>Job</th><th>Amount</th><th>Method</th><th>Transaction</th><th>Status</th><th>Date</th></tr></thead><tbody>'+d.payments.map(p=>`<tr><td>${esc(p.job_title)}</td><td>৳${Number(p.amount).toFixed(2)}</td><td>${p.method==='E_PAYMENT'?'E-Payment':'Bank Transfer'}</td><td>${esc(p.transaction_id)}</td><td><span class="status-badge status-${esc(p.status)}">${p.status==='PENDING'?'Pending Verification':esc(p.status)}</span></td><td>${esc(p.created_at)}</td></tr>`).join('')+'</tbody></table></div>';}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]) )}
+(function(){const q=new URLSearchParams(location.search);const status=q.get('status');const tx=q.get('transaction');if(status){const box=document.getElementById('callbackMessage');const ok=status==='success';box.innerHTML=`<div class="${ok?'success-box':'error-box'}">${ok?'Payment successful.':'Payment status: '+status+'.'} ${tx?'Transaction: '+esc(tx):''}</div>`;}selectMethod('E_PAYMENT');loadBank();loadHistory();document.getElementById('paymentForm').addEventListener('submit',submitPayment);})();
+</script>
+</body></html>
