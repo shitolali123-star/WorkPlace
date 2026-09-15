@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: work-place
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.1
+      - key: PASSWORD_PEPPER
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: SSLCZ_STORE_ID
+        sync: false
+      - key: SSLCZ_STORE_PASSWORD
+        sync: false
+      - key: SSLCZ_SANDBOX
+        value: "true"
+      - key: BASE_URL
+        sync: false

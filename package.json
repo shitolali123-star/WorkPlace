@@ -1,0 +1,17 @@
+{
+  "name": "work-place",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Work Place marketplace with email OTP, profile photos, bank transfer and e-payment integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "nodemailer": "^6.9.16"
+  }
+}

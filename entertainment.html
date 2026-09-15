@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Entertainment — Work Place</title><link rel="stylesheet" href="style.css"></head>
+<body class="ent-page">
+<nav class="navbar"><a class="logo" href="index.html"><img src="assets/work-place-logo.png" class="brand-logo" alt="Work Place"></a><div class="navlinks"><a href="index.html">Dashboard</a><a href="coins.html" class="coin-nav"><img src="assets/work-place-coin-logo.png" alt="Coin"></a></div><div class="user-area"><span class="user-name">User</span><a class="btn" href="upload-video.html">＋ Post Video</a></div></nav>
+<main class="ent-shell">
+<aside class="ent-sidebar section"><h3>Entertainment</h3><a class="active" href="entertainment.html">🏠 <span>For You</span></a><a href="#" onclick="return filterFeed('Following')">👥 <span>Following</span></a><a href="#" onclick="return filterFeed('Shorts')">📱 <span>Shorts</span></a><a href="#" onclick="return filterFeed('Long Videos')">🎞️ <span>Long Videos</span></a><a href="reels.html">🎬 <span>Reels</span></a><a href="#" onclick="return filterFeed('Live')">🔴 <span>Live</span></a><a href="#" onclick="return filterFeed('Trending')">🔥 <span>Trending</span></a><a href="#" onclick="return filterFeed('Teaching')">📚 <span>Teaching</span></a><a href="#" onclick="return filterStored('saved','Saved Videos')">🔖 <span>Saved Videos</span></a><a href="#" onclick="return filterStored('liked','Liked Videos')">❤️ <span>Liked Videos</span></a><a href="#" onclick="return filterStored('history','History')">🕘 <span>History</span></a><a href="channel.html">🎬 <span>Your Channel</span></a></aside>
+<section class="ent-content">
+<div class="ent-head"><div><span class="eyebrow">WORK PLACE ENTERTAINMENT</span><h1 id="feedTitle">For You</h1><p>Discover videos, learning content, Shorts, long videos and live experiences.</p></div><div class="ent-search"><input id="videoSearch" placeholder="Search videos…" oninput="searchVideos(this.value)"></div></div>
+<div id="videoList" class="ent-video-list"></div>
+</section>
+<aside class="ent-right"><div class="reward-box section"><div class="reward-title">🪙 Active Watch Reward</div><div><b id="rewardRate">10 sec = 1 coin</b></div><div class="progress"><span id="rewardBar"></span></div><small id="rewardStatus">Play a video to start earning.</small><b id="rewardEarned">0 coins this session</b></div><div class="sponsor-card section"><span>SPONSORED</span><h3>Advertisement</h3><p>Work Place sponsored content appears here.</p></div></aside>
+</main>
+<script src="script.js"></script><script>
+const videos=[
+{id:1,title:'How to Learn Electrician Work',type:'Teaching',creator:'Work Place Academy',views:12800,likes:920,desc:'Practical electrician skills and safe wiring basics.',duration:'12:48'},
+{id:2,title:'Creative Design Short Tips',type:'Shorts',creator:'Design Hub',views:8900,likes:670,desc:'Quick graphic design tips for everyday work.',duration:'0:58'},
+{id:3,title:'Online Work Skills — Full Course',type:'Long Videos',creator:'Skill Builder',views:23100,likes:1540,desc:'Build useful online work skills from beginner to advanced.',duration:'24:16'},
+{id:4,title:'Creator Live Session',type:'Live',creator:'Creator Studio',views:5200,likes:410,desc:'Live community session from Work Place creators.',duration:'LIVE'},
+{id:5,title:'Trending Work Place Story',type:'Trending',creator:'Community TV',views:18000,likes:1330,desc:'A trending story from the Work Place community.',duration:'8:42'}];
+let current=videos.slice();
+function thumb(v){return `<div class="ent-thumb"><div class="thumb-play">▶</div><span class="duration">${v.duration}</span></div>`}
+function render(list){const box=document.getElementById('videoList');box.innerHTML=list.length?list.map(v=>`<article class="ent-video-card" onclick="openVideo(${v.id})"><div class="ent-media">${thumb(v)}</div><div class="ent-video-info"><span class="status-pill">${v.type}</span><h2>${v.title}</h2><p class="creator-line">${v.creator} · 👁 ${v.views.toLocaleString()} views</p><p class="video-desc">${v.desc}</p><div class="watch-line"><span>▶ Watch video</span><span>›</span></div></div></article>`).join(''):'<div class="empty">No videos found.</div>'}
+function openVideo(id){location.href='video.html?id='+id}
+function filterFeed(type){document.getElementById('feedTitle').textContent=type;current=type==='Following'||type==='For You'?videos:type==='Trending'?videos.filter(v=>v.type==='Trending'):videos.filter(v=>v.type===type);render(current);return false}
+function arr(k){try{return JSON.parse(localStorage.getItem('wp_'+k)||'[]')}catch{return[]}}
+function filterStored(k,title){document.getElementById('feedTitle').textContent=title;const ids=arr(k);current=videos.filter(v=>ids.includes(v.id));render(current);return false}
+function searchVideos(q){q=q.toLowerCase().trim();render(videos.filter(v=>(v.title+' '+v.creator+' '+v.type+' '+v.desc).toLowerCase().includes(q)))}
+render(videos);
+</script></body></html>

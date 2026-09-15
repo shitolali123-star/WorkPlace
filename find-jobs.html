@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Find Jobs - Work Place</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav class="navbar"><a class="logo" href="index.html"><img src="assets/work-place-logo.png" alt="Work Place" class="brand-logo"></a><div class="navlinks"><a href="index.html">Dashboard</a><a href="worker.html">Workers</a><a href="profile.html">Profile</a></div><div class="user-area"><span class="user-name">User</span></div></nav>
+<section class="hero" style="min-height:250px"><div><h1>Find <span>Jobs</span></h1><p>Choose work that matches your skills.</p></div></section>
+<main class="container"><section class="section">
+<div class="searchbar"><input id="search" oninput="renderJobs()" placeholder="Search jobs..."><select id="categoryFilter" onchange="renderJobs()"><option value="">All categories</option><option>Virtual / Online</option><option>Cleaning</option><option>Electrician</option><option>Plumbing</option><option>Delivery</option><option>Construction</option><option>Gardening</option><option>Photography</option><option>Other</option></select><input id="locationFilter" oninput="renderJobs()" placeholder="Location"><a class="btn btn-light" href="index.html">Dashboard</a></div>
+<div id="jobList" class="job-list"></div></section></main>
+<footer class="footer"><h2>Work Place</h2><p>Find Work. Post Work. Get Things Done.</p></footer><script src="script.js"></script>
+</body></html>
