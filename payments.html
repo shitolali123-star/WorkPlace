@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Work Place - Payments</title><link rel="stylesheet" href="style.css">
+<style>
+.payment-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.payment-choice button{min-height:78px;font-size:15px;font-weight:800;border:1px solid #cbd5e1;background:#f8fafc;color:#12345b;border-radius:12px;cursor:pointer}
+.payment-choice button.active{background:#e8f2ff;border-color:#2581ee;box-shadow:0 0 0 2px rgba(37,129,238,.18)}
+.method-panel{display:none;margin-top:16px;padding:16px;border:1px solid #d6e1ef;border-radius:14px;background:#fbfdff}.method-panel.show{display:block}
+.channel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.channel-card{position:relative;min-height:148px;border:1px solid #d5dfeb;border-radius:12px;background:#fff;display:grid;grid-template-rows:58px 38px 22px;align-items:center;justify-items:center;gap:4px;padding:12px;cursor:pointer;text-align:center;transition:.15s}
+.channel-card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(20,50,90,.08)}
+.channel-card:has(input:checked){border-color:#1976e8;box-shadow:0 0 0 2px rgba(25,118,232,.14);background:#f7fbff}
+.channel-card input{margin:0;accent-color:#1976e8}
+.channel-logo{width:112px;height:46px;object-fit:contain;display:block}
+.card-logo{width:118px;height:52px;object-fit:contain;display:block}
+.brand-name{font-weight:800;color:#0f2d52;font-size:14px;line-height:1.15;height:38px;width:100%;display:flex;align-items:center;justify-content:center;text-align:center}
+.recipient-card{display:none;margin-top:12px;padding:14px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff}.recipient-card.show{display:block}
+.recipient-photo{width:52px;height:52px;border-radius:50%;object-fit:cover;float:left;margin-right:12px}.gateway-note{padding:14px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.bank-panel .bank-box{padding:14px;border:1px solid #dbe3ee;border-radius:12px;background:#fff}.muted-note{font-size:12px;color:#64748b}
+.bank-row{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #eef2f7}.bank-row:last-child{border-bottom:0}.hidden{display:none!important}
+@media(max-width:850px){.channel-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.payment-choice,.channel-grid{grid-template-columns:1fr 1fr}.channel-logo,.card-logo{width:105px}}
+@media(max-width:480px){.payment-choice,.channel-grid{grid-template-columns:1fr}}
+.payer-auto{margin:12px 0;padding:12px;border:1px solid #dbe5f0;border-radius:10px;background:#f8fafc}.payer-auto h4{margin:0 0 3px}.payer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.payer-grid label{display:block;font-size:11px;font-weight:700;margin-bottom:4px}.payer-grid input{width:100%;padding:9px;border:1px solid #d1d9e6;border-radius:7px;background:#eef2f7;color:#334155}@media(max-width:700px){.payer-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="navbar"><a class="logo" href="index.html"><img src="assets/work-place-logo.png" alt="Work Place" class="brand-logo"></a><div class="navlinks"><a href="index.html">Home</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a><a href="entertainment.html">Entertainment</a><a href="advertisement.html">Advertisement</a><a href="payments.html">Payments</a><a href="appeal-history.html">Appeals</a><a href="messaging.html" class="message-nav" title="Messaging">💬</a><a class="coin-nav" href="coins.html" title="Coins & Rewards"><img src="assets/work-place-coin-logo.png" alt="Coins" style="width:24px;height:24px;vertical-align:middle"></a><div class="notification-wrap"><button class="notification-button" type="button" aria-label="Notifications" title="Notifications">🔔<span class="notification-count" style="display:none">0</span></button><div class="notification-panel"><div class="notification-head"><b>Notifications</b><button type="button" onclick="markAllNotificationsRead()">Mark all read</button></div><div class="notification-list"><div class="notification-empty">Loading…</div></div></div></div></div><div class="user-area"><a class="profile-icon-link" href="profile.html" title="Profile" aria-label="Profile">👤</a><a class="btn login-link" href="login.html">Login / Sign Up</a></div></nav>
+<main class="container">
+<section class="section"><h1>💳 Payment Center</h1><p class="muted">Enter the receiver's 8-digit Work Place ID and payment amount before choosing a payment method.</p><div id="callbackMessage"></div></section>
+<section class="payment-grid">
+<div class="payment-card"><h3>1. Make a Payment</h3><form id="paymentForm">
+<div class="field"><label>Receiver Work Place ID</label><input id="receiverProfileId" inputmode="numeric" maxlength="8" placeholder="8-digit ID" required><div class="small">The receiver can find this number on their Profile page.</div></div>
+<div id="recipientCard" class="recipient-card"><img id="recipientPhoto" class="recipient-photo" alt=""><b id="recipientName"></b><div id="recipientType" class="small"></div><div style="clear:both"></div></div>
+<div class="field"><label>Amount (৳)</label><input id="amount" type="number" min="10" max="500000" step="0.01" placeholder="10" required><div class="small">Sandbox payment amount: ৳10–৳500,000.</div></div>
+<div class="field"><label>2. Select Payment Type</label><div class="payment-choice">
+<button type="button" id="bBtn" onclick="selectMethod('BANK_TRANSFER')">🏦<br>Bank Transfer</button>
+<button type="button" id="iBtn" onclick="selectMethod('INTERNET_BANKING')">📱<br>Internet Banking</button>
+<button type="button" id="eBtn" onclick="selectMethod('E_PAYMENT')">💳<br>E-Payment</button>
+</div></div>
+
+<div id="bankPanel" class="method-panel bank-panel"><h3>🏦 Bank Transfer</h3><p class="muted-note">Only Work Place bank transfer information is shown here.</p><div id="bankInfo" class="bank-box">Loading bank details...</div><div class="notice" style="margin-top:12px">After transferring the money, enter the bank transaction/reference ID below.</div><div class="field"><label>Bank Transaction ID</label><input id="transactionId" placeholder="e.g. FT123456789"></div><div class="field"><label>Payment Proof (optional)</label><input id="proof" type="file" accept="image/jpeg,image/png,image/webp"><div class="small">Do not upload PIN, password or other sensitive credentials.</div></div></div>
+
+<div id="internetPanel" class="method-panel"><h3>📱 Internet Banking</h3><p class="muted-note">Select one channel. The selected channel will continue through the secure SSLCOMMERZ checkout.</p><div class="channel-grid">
+<label class="channel-card"><img class="channel-logo" src="https://gczbd-s3.sgp1.digitaloceanspaces.com/gczbd/public/upload/2023-03-02T08-17-23.008Z-Untitled%20design%20%287%29.png" alt="bKash logo"><span class="brand-name">bKash</span><input type="radio" name="internetChannel" value="bKash"></label>
+<label class="channel-card"><img class="channel-logo" src="https://www.akijtakafullife.com.bd/frontendWebsite/img/payments/rocket.png" alt="Rocket logo"><span class="brand-name">Rocket</span><input type="radio" name="internetChannel" value="Rocket"></label>
+<label class="channel-card"><img class="channel-logo" src="https://image.pngaaa.com/400/3425400-middle.png" alt="Nagad logo"><span class="brand-name">Nagad</span><input type="radio" name="internetChannel" value="Nagad"></label>
+<label class="channel-card"><img class="channel-logo" src="https://fastly.mwm-storage.mwmcdn.com/raw_files/24451097-bb97-44c6-8bdd-83ba37ded892" alt="upay logo"><span class="brand-name">upay</span><input type="radio" name="internetChannel" value="upay"></label>
+</div></div>
+
+<div id="ePaymentPanel" class="method-panel"><h3>💳 E-Payment</h3><p class="muted-note">Select the card brand you want to use. Final card availability depends on the SSLCOMMERZ merchant/Sandbox configuration.</p><div class="channel-grid">
+<label class="channel-card"><img class="card-logo" src="https://toppng.com/uploads/preview/visa-us-vector-logo-free-download-11574017219rwlbxkijxr.png" alt="Visa logo"><span class="brand-name">Visa</span><input type="radio" name="cardChannel" value="Visa"></label>
+<label class="channel-card"><img class="card-logo" src="https://p7.hiclipart.com/preview/530/165/73/logo-mastercard-pentagram-flat-design-brand-mastercard.jpg" alt="Mastercard logo"><span class="brand-name">Mastercard</span><input type="radio" name="cardChannel" value="Mastercard"></label>
+<label class="channel-card"><img class="card-logo" src="https://toppng.com/uploads/preview/american-express-logo-vector-11574248215mu4af8lf1a.png" alt="American Express logo"><span class="brand-name">American Express</span><input type="radio" name="cardChannel" value="American Express"></label>
+</div></div>
+
+
+<div class="payer-auto" id="payerAuto"><h4>👤 Payer Information</h4><p class="small">Automatically filled from your logged-in Work Place account.</p><div class="payer-grid"><div><label>Name</label><input id="payerName" readonly></div><div><label>Phone</label><input id="payerPhone" readonly></div><div><label>Email</label><input id="payerEmail" readonly></div></div></div>
+
+<button class="btn btn-green" type="submit" id="payBtn">Continue →</button>
+</form></div>
+
+<div class="payment-card"><h3>3. Payment Information</h3><div class="notice"><b>Before payment</b><ol><li>Enter the receiver's 8-digit Work Place ID.</li><li>Confirm the receiver's name.</li><li>Enter the amount.</li><li>Select Bank Transfer, Internet Banking or E-Payment.</li><li>Select the specific payment channel.</li><li>Review everything before continuing.</li></ol></div><div class="small" style="margin-top:12px">Bank details appear only after Bank Transfer is selected. Internet Banking and E-Payment show only their own channels.</div></div>
+</section>
+<section class="section"><h2>Payment History</h2><div id="history">Login to see your payment history.</div></section>
+</main><footer class="footer"><h2>Work Place</h2><p>Find Work. Post Work. Get Things Done.</p></footer>
+<script src="script.js"></script><script>
+let method = 'INTERNET_BANKING';
+let receiver = null;
+
+function user(){ return getUser(); }
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function selectedChannel(){
+  const group = method === 'INTERNET_BANKING' ? 'internetChannel' : 'cardChannel';
+  const el = document.querySelector('input[name="' + group + '"]:checked');
+  return el ? el.value : '';
+}
+function selectMethod(m){
+  method = m;
+  ['bBtn','iBtn','eBtn'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const activeId = m === 'BANK_TRANSFER' ? 'bBtn' : (m === 'INTERNET_BANKING' ? 'iBtn' : 'eBtn');
+  document.getElementById(activeId).classList.add('active');
+  document.getElementById('bankPanel').classList.toggle('show', m === 'BANK_TRANSFER');
+  document.getElementById('internetPanel').classList.toggle('show', m === 'INTERNET_BANKING');
+  document.getElementById('ePaymentPanel').classList.toggle('show', m === 'E_PAYMENT');
+  document.getElementById('payBtn').textContent = m === 'BANK_TRANSFER'
+    ? 'Submit Bank Payment →'
+    : (m === 'INTERNET_BANKING' ? 'Continue to Internet Banking →' : 'Continue to E-Payment →');
+  if(m === 'BANK_TRANSFER') loadBank();
+}
+async function lookupReceiver(){
+  const input = document.getElementById('receiverProfileId');
+  input.value = input.value.replace(/\D/g,'').slice(0,8);
+  const id = input.value.trim();
+  const card = document.getElementById('recipientCard');
+  receiver = null;
+  if(!id || id.length !== 8){ card.classList.remove('show'); return; }
+  try{
+    const r = await fetch('/api/profile/by-profile-id/' + encodeURIComponent(id));
+    const d = await r.json();
+    if(!r.ok || !d.ok) throw new Error(d.message || 'Profile not found.');
+    receiver = d.user;
+    document.getElementById('recipientName').textContent = receiver.name;
+    document.getElementById('recipientType').textContent = receiver.type + ' · Work Place ID ' + receiver.profileId;
+    const photo = document.getElementById('recipientPhoto');
+    if(receiver.photoData){ photo.src = receiver.photoData; photo.style.display = 'block'; }
+    else photo.style.display = 'none';
+    card.classList.add('show');
+  }catch(e){ card.classList.remove('show'); receiver = null; }
+}
+async function loadBank(){
+  const r = await fetch('/api/payment/config');
+  const d = await r.json();
+  const b = d.bank;
+  if(!b.configured){
+    document.getElementById('bankInfo').innerHTML = '<div class="notice"><b>Bank Transfer: Coming Soon</b><p style="margin:6px 0 0">Work Place bank account details have not been configured yet.</p></div>';
+    return;
+  }
+  document.getElementById('bankInfo').innerHTML =
+    '<div class="bank-row"><b>Bank</b><span>'+esc(b.name)+'</span></div>' +
+    '<div class="bank-row"><b>Account Name</b><span>'+esc(b.accountName)+'</span></div>' +
+    '<div class="bank-row"><b>Account Number</b><span>'+esc(b.accountNumber)+'</span></div>' +
+    '<div class="bank-row"><b>Branch</b><span>'+esc(b.branch)+'</span></div>' +
+    '<div class="bank-row"><b>Routing</b><span>'+esc(b.routing)+'</span></div>';
+}
+async function submitPayment(e){
+  e.preventDefault();
+  if(!requireLogin()) return;
+  const u = user();
+  const receiverProfileId = document.getElementById('receiverProfileId').value.trim();
+  const amount = Number(document.getElementById('amount').value);
+  if(!receiver || receiver.profileId !== receiverProfileId){ alert('Please enter a valid 8-digit Receiver Work Place ID and confirm the receiver.'); return; }
+  if(!Number.isFinite(amount) || amount < 10 || amount > 500000){ alert('Amount must be between ৳10 and ৳500,000.'); return; }
+  if(receiver.id === u.id){ alert('You cannot pay yourself.'); return; }
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  try{
+    if(method === 'BANK_TRANSFER'){
+      const transactionId = document.getElementById('transactionId').value.trim();
+      if(!transactionId) throw new Error('Bank transaction ID is required.');
+      let proofData = '';
+      const file = document.getElementById('proof').files[0];
+      if(file){
+        if(file.size > 700000) throw new Error('Proof image should be smaller than 700 KB.');
+        proofData = await toData(file);
+      }
+      const r = await fetch('/api/payments/bank-transfer', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({userId:u.id,receiverProfileId,amount,transactionId,proofData})
+      });
+      const d = await r.json();
+      if(!r.ok || !d.ok) throw new Error(d.message || 'Bank payment submission failed.');
+      alert('Bank payment submitted. Status: Pending Verification.');
+      e.target.reset(); receiver = null; document.getElementById('recipientCard').classList.remove('show');
+      selectMethod('INTERNET_BANKING'); loadHistory(); return;
+    }
+    const channel = selectedChannel();
+    if(!channel) throw new Error('Please select a payment channel first.');
+    // Payer information is taken automatically from the logged-in account.
+    const email = u.email;
+    const phone = u.phone;
+    const name = u.name;
+    const r = await fetch('/api/payments/ssl/initiate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({userId:u.id,receiverProfileId,amount,customerName:name,customerEmail:email,customerPhone:phone,paymentChannel:method,selectedChannel:channel})
+    });
+    const d = await r.json();
+    if(!r.ok || !d.ok) throw new Error(d.message || 'Payment could not start.');
+    location.href = d.redirectUrl;
+  }catch(err){ alert(err.message); }
+  finally{ btn.disabled = false; }
+}
+function toData(file){
+  return new Promise((resolve,reject)=>{
+    const rd = new FileReader(); rd.onload = () => resolve(rd.result); rd.onerror = reject; rd.readAsDataURL(file);
+  });
+}
+async function loadHistory(){
+  const u = user();
+  if(!u){ document.getElementById('history').innerHTML='Please login first.'; return; }
+  const r = await fetch('/api/payments/' + u.id);
+  const d = await r.json();
+  if(!d.payments?.length){ document.getElementById('history').innerHTML='<div class="empty">No payments yet.</div>'; return; }
+  document.getElementById('history').innerHTML = '<div style="overflow:auto"><table class="payment-table"><thead><tr><th>Receiver ID</th><th>Amount</th><th>Method / Channel</th><th>Transaction</th><th>Status</th><th>Date</th></tr></thead><tbody>' +
+    d.payments.map(p => {
+      let methodLabel = 'Bank Transfer';
+      if(p.method === 'E_PAYMENT'){
+        if(p.payment_channel && p.payment_channel.startsWith('INTERNET_BANKING:')) methodLabel = 'Internet Banking: ' + esc(p.payment_channel.split(':').slice(1).join(':'));
+        else if(p.payment_channel && p.payment_channel.startsWith('E_PAYMENT:')) methodLabel = 'E-Payment: ' + esc(p.payment_channel.split(':').slice(1).join(':'));
+        else methodLabel = 'E-Payment';
+      }
+      return '<tr><td>'+esc(p.receiver_profile_id||'-')+'</td><td>৳'+Number(p.amount).toFixed(2)+'</td><td>'+methodLabel+'</td><td>'+esc(p.transaction_id)+'</td><td><span class="status-badge status-'+esc(p.status)+'">'+(p.status==='PENDING'?'Pending Verification':esc(p.status))+'</span></td><td>'+esc(p.created_at)+'</td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+document.getElementById('receiverProfileId').addEventListener('input', () => {
+  const el = document.getElementById('receiverProfileId'); el.value = el.value.replace(/\D/g,'').slice(0,8);
+});
+document.getElementById('receiverProfileId').addEventListener('blur', lookupReceiver);
+document.getElementById('receiverProfileId').addEventListener('change', lookupReceiver);
+(function(){
+  const logged = user();
+  if(logged){ document.getElementById('payerName').value=logged.name||''; document.getElementById('payerPhone').value=logged.phone||''; document.getElementById('payerEmail').value=logged.email||''; }
+  const q = new URLSearchParams(location.search), status = q.get('status'), tx = q.get('transaction');
+  if(status){
+    const box = document.getElementById('callbackMessage'), ok = status === 'success';
+    box.innerHTML = '<div class="'+(ok?'success-box':'error-box')+'">'+(ok?'Payment successful.':'Payment status: '+status+'.')+' '+(tx?'Transaction: '+esc(tx):'')+'</div>';
+  }
+  selectMethod('INTERNET_BANKING');
+  loadHistory();
+  document.getElementById('paymentForm').addEventListener('submit', submitPayment);
+})();
+</script></body></html>

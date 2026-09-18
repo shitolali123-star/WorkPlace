@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reels — Work Place</title><link rel="stylesheet" href="style.css"></head>
+<body class="ent-page reels-page">
+<nav class="navbar">
+  <a class="logo" href="index.html"><img src="assets/work-place-logo.png" alt="Work Place" class="brand-logo"></a>
+  <div class="navlinks">
+    <a href="index.html">Home</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a><a href="entertainment.html">Entertainment</a><a href="advertisement.html">Advertisement</a><a href="payments.html">Payments</a><a href="appeal-history.html">Appeals</a><a href="messaging.html" class="message-nav" title="Messaging">💬</a><a class="coin-nav" href="coins.html" title="Coins & Rewards"><img src="assets/work-place-coin-logo.png" alt="Coins"></a><div class="notification-wrap"><button class="notification-button" type="button" aria-label="Notifications" title="Notifications">🔔<span class="notification-count" style="display:none">0</span></button><div class="notification-panel"><div class="notification-head"><b>Notifications</b><button type="button" onclick="markAllNotificationsRead()">Mark all read</button></div><div class="notification-list"><div class="notification-empty">Loading…</div></div></div></div>
+  </div>
+  <div class="user-area"><a class="profile-icon-link" href="profile.html" title="Profile" aria-label="Profile">👤</a><a class="btn login-link" href="login.html">Login / Sign Up</a></div>
+</nav>
+<main class="ent-shell reels-layout-final">
+  <aside class="ent-sidebar section">
+    <h3>Entertainment</h3>
+    <a href="entertainment.html">🏠 <span>Home</span></a>
+    <a href="entertainment.html#videos">🎞️ <span>Videos</span></a>
+    <a class="active" href="reels.html">🎬 <span>Reels</span></a>
+    <a href="entertainment.html#following">👥 <span>Following</span></a>
+    <a href="entertainment.html#trending">🔥 <span>Trending</span></a>
+    <a href="entertainment.html#teaching">📚 <span>Teaching</span></a>
+    <a href="entertainment.html#saved">🔖 <span>Saved</span></a>
+    <a href="entertainment.html#liked">❤️ <span>Liked</span></a>
+    <a href="entertainment.html#history">🕘 <span>History</span></a>
+    <a href="channel.html">📺 <span>Your Channel</span></a>
+    <div class="reel-category-menu">
+      <h4>Reel Categories</h4>
+      <div id="reelCategoryLinks"></div>
+    </div>
+  </aside>
+  <section class="reels-feed reels-category-feed" id="reelsFeed">
+    <div class="reels-page-head section"><span class="eyebrow">WORK PLACE ENTERTAINMENT</span><h1>Reels</h1><p>Only vertical Reels appear here. No long videos or video cards are mixed into this page.</p></div>
+    <div id="reelCategoryArea"></div>
+  </section>
+</main>
+<script src="script.js"></script>
+<script>
+const reelCategories=['News','Industrial','Entertainment','Web Series','Natok','Movie','Sports','Technology','Education','Music','Comedy','Documentary','Lifestyle','Cooking','Travel','Gaming','Health','Agriculture','Jobs & Skills','Science','Religion','Fashion','Business','Automotive','Kids','Animation'];
+const reelCreators=['Work Place Creator','Daily Update','Creator Hub','Local Stories','Skill Builder','Entertainment Studio','Work Place Live'];
+const reelTitles=['Trending Now','Quick Tip','Today’s Highlight','Behind the Scenes','30 Second Story','Useful Idea','Creator Moment','What’s New'];
+const reelCounts={};
+let reelId=1000;
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function makeReel(category,i){const id=reelId++;return {id,title:reelTitles[(id+i)%reelTitles.length]+' — '+category,creator:reelCreators[id%reelCreators.length],likes:80+(id*29)%15000,comments:10+(id*11)%2500,category};}
+const reels=[];
+function seedCategory(cat,count=8){reelCounts[cat]=count;for(let i=0;i<count;i++)reels.push(makeReel(cat,i));}
+reelCategories.forEach(cat=>seedCategory(cat,8));
+function reelCard(r){return `<article class="reel-card reel-only-card" data-category="${esc(r.category)}"><div class="reel-ad">Advertisement</div><div class="reel-video-wrap"><video class="reel-video" playsinline muted loop preload="metadata"></video><div class="reel-placeholder">▶<small>Reel</small></div><button class="reel-fullscreen" title="Full screen" onclick="fullReel(this)">⛶</button><div class="reel-actions"><button>👍<span>${r.likes.toLocaleString()}</span></button><button>💬<span>${r.comments.toLocaleString()}</span></button><button>🔖</button><button>↗</button><button>⚑</button></div></div><div class="reel-info"><b>${esc(r.title)}</b><small>${esc(r.creator)}</small></div></article>`}
+function categoryBlock(cat){const items=reels.filter(r=>r.category===cat);return `<section class="reel-category-section" id="reel-cat-${encodeURIComponent(cat)}"><div class="ent-section-head"><div><h2>${esc(cat)}</h2><p>Only ${esc(cat)} Reels</p></div><button class="text-link" onclick="addMoreReels('${esc(cat)}')">Load more Reels</button></div><div class="reel-category-grid" data-reel-category="${esc(cat)}">${items.map(reelCard).join('')}</div></section>`}
+function renderCategories(){document.getElementById('reelCategoryLinks').innerHTML=reelCategories.map(cat=>`<a href="#reel-cat-${encodeURIComponent(cat)}">${esc(cat)}</a>`).join('');document.getElementById('reelCategoryArea').innerHTML=reelCategories.map(categoryBlock).join('');activatePlayers();}
+function addMoreReels(cat){const count=reelCounts[cat]||8;for(let i=0;i<8;i++)reels.push(makeReel(cat,count+i));reelCounts[cat]=count+8;const grid=document.querySelector('#reel-cat-'+encodeURIComponent(cat)+' .reel-category-grid');if(grid){grid.innerHTML=reels.filter(r=>r.category===cat).map(reelCard).join('');activatePlayers();}}
+function activatePlayers(){const cards=[...document.querySelectorAll('.reel-only-card')];const obs=new IntersectionObserver(entries=>entries.forEach(e=>{const v=e.target.querySelector('.reel-video');if(e.isIntersecting){e.target.classList.add('playing');v.play().catch(()=>{});}else{v.pause();e.target.classList.remove('playing');}}),{threshold:.72});cards.forEach(c=>obs.observe(c));}
+function fullReel(btn){const v=btn.closest('.reel-video-wrap').querySelector('video');if(v.requestFullscreen)v.requestFullscreen();else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen();}
+let sec=0;setInterval(()=>{const active=document.querySelector('.reel-only-card.playing');if(!active)return;sec++;const rate=Math.max(1,Number(getCoinSettings().activeSeconds||10));if(sec%rate===0)addCoins(1)},1000);
+renderCategories();
+</script>
+</body></html>

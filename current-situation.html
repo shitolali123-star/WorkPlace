@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Place - Current Situation</title><link rel="stylesheet" href="style.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+.cs-navbar{display:none!important}
+body>nav.navbar{display:flex!important;height:62px!important;padding:0 4.5%!important;position:sticky!important;top:0!important;z-index:100!important}
+body>nav.navbar .brand-logo{width:auto!important;height:40px!important;max-width:160px!important;object-fit:contain!important}
+body>nav.navbar .logo{width:auto!important;height:40px!important;display:flex!important;align-items:center!important}
+body>nav.navbar .navlinks{display:flex!important;align-items:center!important;gap:14px!important}
+body>nav.navbar .navlinks a{color:#fff!important;text-decoration:none!important;font-size:13px!important}
+body>nav.navbar .notification-wrap{display:flex!important}
+
+body{min-height:100vh;background:#eef4fb;color:#102a43}
+nav.cs-navbar{display:none}
+.hero{background:#0b3768;color:#fff;text-align:center;padding:18px 20px 16px}.hero h1{font-size:32px;margin-bottom:6px}.hero p{color:#dbeafe;font-size:15px}
+.container{width:92%;max-width:1250px;margin:-20px auto 50px;position:relative}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:26px}
+.summary-card{background:#fff;border-radius:16px;padding:22px;box-shadow:0 10px 28px rgba(15,42,67,.12);border-left:6px solid}
+.summary-card.pending{border-color:#2563eb}.summary-card.completed{border-color:#16a34a}.summary-card.uncompleted{border-color:#dc2626}
+.summary-card .num{font-size:38px;font-weight:800;margin:6px 0}.summary-card small{color:#64748b}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.tab{border:0;border-radius:9px;padding:11px 18px;background:#dbeafe;color:#174a7e;font-weight:700;cursor:pointer}
+.tab.active{background:#1769aa;color:#fff}
+.jobs{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.job{background:#fff;border-radius:16px;padding:22px;box-shadow:0 8px 24px rgba(15,42,67,.10);border:1px solid #e2e8f0}
+.job-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:12px}
+.job h3{font-size:21px;margin-bottom:5px}.category{color:#64748b;font-size:14px}
+.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.badge.pending{background:#dbeafe;color:#1d4ed8}.badge.completed{background:#dcfce7;color:#15803d}.badge.uncompleted{background:#fee2e2;color:#b91c1c}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+.detail{background:#f8fafc;padding:10px;border-radius:9px}.detail b{display:block;font-size:12px;color:#64748b;margin-bottom:3px}.detail span{font-weight:700}
+.description{color:#475569;line-height:1.55;margin-bottom:16px}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.actions button{border:0;border-radius:8px;padding:10px 13px;color:#fff;font-weight:700;cursor:pointer}
+.complete{background:#16a34a}.uncomplete{background:#dc2626}.pending-btn{background:#2563eb}.delete{background:#64748b}
+.empty{background:#fff;padding:45px 20px;text-align:center;border-radius:16px;color:#64748b;grid-column:1/-1}
+.note{margin-top:22px;background:#fff7ed;border:1px solid #fed7aa;padding:14px 16px;border-radius:10px;color:#9a3412;line-height:1.5}
+footer{background:#061b38;color:#cbd5e1;text-align:center;padding:30px}
+@media(max-width:850px){.jobs{grid-template-columns:1fr}.summary{grid-template-columns:1fr}.cs-links{display:none}.hero h1{font-size:30px}.details{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="navbar"><a class="logo" href="index.html"><img src="assets/work-place-logo.png" alt="Work Place" class="brand-logo"></a><div class="navlinks"><a href="index.html">Home</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a><a href="entertainment.html">Entertainment</a><a href="advertisement.html">Advertisement</a><a href="payments.html">Payments</a><a href="appeal-history.html">Appeals</a><a href="messaging.html" class="message-nav" title="Messaging">💬</a><a class="coin-nav" href="coins.html" title="Coins & Rewards"><img src="assets/work-place-coin-logo.png" alt="Coins" style="width:24px;height:24px;vertical-align:middle"></a><div class="notification-wrap"><button class="notification-button" type="button" aria-label="Notifications" title="Notifications">🔔<span class="notification-count" style="display:none">0</span></button><div class="notification-panel"><div class="notification-head"><b>Notifications</b><button type="button" onclick="markAllNotificationsRead()">Mark all read</button></div><div class="notification-list"><div class="notification-empty">Loading…</div></div></div></div></div><div class="user-area"><a class="profile-icon-link" href="profile.html" title="Profile" aria-label="Profile">👤</a><a class="btn login-link" href="login.html">Login / Sign Up</a></div></nav>
+
+<section class="hero">
+  <h1>Current Situation</h1>
+  <p>Track posted, accepted, pending, completed and expired jobs. Once a worker accepts a job, the client cannot cancel it.</p>
+</section>
+
+<main class="container">
+  <section class="summary">
+    <div class="summary-card pending"><small>Pending / Posted Jobs</small><div class="num" id="pendingCount">0</div><div>Jobs waiting to be completed</div></div>
+    <div class="summary-card completed"><small>Completed Jobs</small><div class="num" id="completedCount">0</div><div>Successfully completed jobs</div></div>
+    <div class="summary-card uncompleted"><small>Uncompleted Jobs</small><div class="num" id="uncompletedCount">0</div><div>Jobs that were not completed</div></div>
+  </section>
+
+  <div class="tabs">
+    <button class="tab active" data-filter="all">All Jobs</button>
+    <button class="tab" data-filter="Pending">Pending</button><button class="tab" data-filter="Accepted">Accepted</button><button class="tab" data-filter="Expired">Expired</button>
+    <button class="tab" data-filter="Completed">Completed</button>
+    <button class="tab" data-filter="Uncompleted">Uncompleted</button><button class="tab" data-filter="Posted">My Posted Jobs</button>
+  </div>
+
+  <section class="jobs" id="jobs"></section>
+
+  <div class="note">
+    <b>Note:</b> এই পেজটি তোমার বর্তমান <code>workPlaceJobs</code> localStorage data ব্যবহার করে। তাই Post Job থেকে নতুন job যোগ হলে এখানে দেখা যাবে। Status change করলে একই data-তে update হবে।
+  </div>
+</main>
+
+<footer><h2>Work Place</h2><p>Find Work. Post Work. Get Things Done.</p></footer>
+
+<script src="script.js"></script><script>
+let allJobs = [];
+let activeFilter = "all";
+
+function getJobs(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("workPlaceJobs") || "[]");
+    return Array.isArray(saved) ? saved : [];
+  }catch(e){ return []; }
+}
+
+function saveJobs(){
+  localStorage.setItem("workPlaceJobs", JSON.stringify(allJobs));
+}
+
+function normalizeStatus(status){
+  const s = String(status || "Pending").toLowerCase();
+  if(s === "completed") return "Completed";
+  if(s === "accepted" || s === "in progress") return "Accepted";
+  if(s === "expired" || s === "time expired") return "Expired";
+  if(s === "uncompleted" || s === "failed" || s === "cancelled") return "Uncompleted";
+  return "Pending";
+}
+function expireJobs(){let changed=false;const now=Date.now();allJobs.forEach(j=>{if(j.status==='Accepted' && j.deadline && new Date(j.deadline).getTime()<now){j.status='Expired';j.expiredReason='Worker did not complete before deadline';changed=true}});if(changed)saveJobs()}
+
+function escapeHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+function formatDate(value){
+  if(!value) return "Not set";
+  const d = new Date(value + (String(value).length === 10 ? "T00:00:00" : ""));
+  if(Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+}
+
+function render(){
+  allJobs = getJobs().map(j => ({...j, status: normalizeStatus(j.status)}));
+  expireJobs();
+  const pending = allJobs.filter(j=>j.status==="Pending").length;
+  const completed = allJobs.filter(j=>j.status==="Completed").length;
+  const uncompleted = allJobs.filter(j=>j.status==="Uncompleted").length;
+
+  document.getElementById("pendingCount").textContent = pending;
+  document.getElementById("completedCount").textContent = completed;
+  document.getElementById("uncompletedCount").textContent = uncompleted;
+
+  const visible = activeFilter === "all" ? allJobs : allJobs.filter(j=>j.status===activeFilter);
+  const box = document.getElementById("jobs");
+
+  if(!visible.length){
+    box.innerHTML = `<div class="empty"><h3>No ${activeFilter==="all" ? "" : activeFilter.toLowerCase()+" "}jobs found</h3><p style="margin-top:8px">Post or take a job to see it here.</p></div>`;
+    return;
+  }
+
+  box.innerHTML = visible.slice().reverse().map(job=>{
+    const statusClass = job.status.toLowerCase();
+    const id = escapeHtml(job.id);
+    return `
+      <article class="job">
+        <div class="job-head">
+          <div><h3>${escapeHtml(job.title || "Untitled Job")}</h3><div class="category">${escapeHtml(job.category || "Other")}</div></div>
+          <span class="badge ${statusClass}">${escapeHtml(job.status)}</span>
+        </div>
+        <div class="details">
+          <div class="detail"><b>PRICE</b><span>৳${escapeHtml(job.price ?? "0")}</span></div>
+          <div class="detail"><b>LOCATION</b><span>${escapeHtml(job.location || "Online")}</span></div>
+          <div class="detail"><b>DEADLINE</b><span>${formatDate(job.deadline)}</span></div>
+          <div class="detail"><b>JOB ID</b><span>${id}</span></div>
+        </div>
+        <p class="description">${escapeHtml(job.description || "No description provided.")}</p>
+        <div class="actions">
+          ${job.status==='Accepted'?`<button class="complete" onclick="changeStatus('${id}','Completed')">Worker Completed</button><button class="uncomplete" onclick="changeStatus('${id}','Uncompleted')">Mark Uncompleted</button>`:`<button class="pending-btn" onclick="changeStatus('${id}','Pending')">Pending</button><button class="complete" onclick="changeStatus('${id}','Completed')">Mark Completed</button>${job.status==='Pending'?`<button class="delete" onclick="deleteJob('${id}')">Cancel Posted Job</button>`:''}`}
+        </div>
+      </article>`;
+  }).join("");
+}
+
+function changeStatus(id,status){
+  const job = allJobs.find(j=>String(j.id)===String(id));
+  if(!job) return;
+  job.status = status;
+  saveJobs();
+  render();
+}
+
+function deleteJob(id){
+  const job = allJobs.find(j=>String(j.id)===String(id));
+  if(!job) return;
+  if(job.status==='Accepted'){alert('This job cannot be cancelled after a worker accepts it. It will expire automatically if the worker misses the deadline.');return;}
+  if(!confirm(`Delete "${job.title || "this job"}"?`)) return;
+  allJobs = allJobs.filter(j=>String(j.id)!==String(id));
+  saveJobs();
+  render();
+}
+
+document.querySelectorAll(".tab").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+try{
+  const possibleUser = JSON.parse(localStorage.getItem("workPlaceUser") || "null");
+  if(possibleUser && possibleUser.name) document.getElementById("userName").textContent = possibleUser.name;
+}catch(e){}
+
+render();
+</script>
+</body>
+</html>

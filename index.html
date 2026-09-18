@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Work Place</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav class="navbar"><a class="logo" href="index.html"><img src="assets/work-place-logo.png" alt="Work Place" class="brand-logo"></a><div class="navlinks"><a href="index.html">Home</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a><a href="entertainment.html">Entertainment</a><a href="advertisement.html">Advertisement</a><a href="payments.html">Payments</a><a href="appeal-history.html">Appeals</a><a href="messaging.html" class="message-nav" title="Messaging">💬</a><a class="coin-nav" href="coins.html" title="Coins & Rewards"><img src="assets/work-place-coin-logo.png" alt="Coins" style="width:24px;height:24px;vertical-align:middle"></a><div class="notification-wrap"><button class="notification-button" type="button" aria-label="Notifications" title="Notifications">🔔<span class="notification-count" style="display:none">0</span></button><div class="notification-panel"><div class="notification-head"><b>Notifications</b><button type="button" onclick="markAllNotificationsRead()">Mark all read</button></div><div class="notification-list"><div class="notification-empty">Loading…</div></div></div></div></div><div class="user-area"><a class="profile-icon-link" href="profile.html" title="Profile" aria-label="Profile">👤</a><a class="btn login-link" href="login.html">Login / Sign Up</a></div></nav>
+<section class="hero"><div class="hero-copy"><h1>Work smarter with <span>Work Place</span></h1><p>Post local or online work, discover skilled people, and get things done.</p></div></section>
+<main class="container">
+<section class="marketplace-strip">
+  <div><strong>Trusted marketplace</strong><span> Jobs • Workers • Payments • Messaging</span></div>
+</section>
+<section class="cards">
+<div class="card"><div class="icon blue">📋</div><h2>Current Situation</h2><p>View your pending, completed and uncompleted jobs.</p><div id="myStats" class="stats"></div><a class="btn" href="current-situation.html">View Details →</a></div>
+<div class="card"><div class="icon green">➕</div><h2>Post Jobs</h2><p>Create a new job and set your price, location and deadline.</p><button class="btn btn-green" onclick="showPostForm()">Post a Job →</button></div>
+<div class="card"><div class="icon purple">🔎</div><h2>Find Jobs</h2><p>Browse available jobs and choose work according to your skills.</p><a class="btn btn-purple" href="find-jobs.html">Find Jobs →</a></div>
+<div class="card"><div class="icon orange">👷</div><h2>Worker</h2><p>View workers and contact someone you have worked with before.</p><a class="btn btn-orange" href="worker.html">View Workers →</a></div>
+<div class="card"><div class="icon red">📢</div><h2>Advertisement</h2><p>Choose a package and promote your legal advertisement.</p><a class="btn btn-red" href="advertisement.html">Advertise →</a></div>
+<div class="card"><div class="icon blue">🎬</div><h2>Entertainment</h2><p>Watch short videos, long videos, reels and live content.</p><a class="btn" href="entertainment.html">Open Entertainment →</a></div><div class="card"><div class="icon blue">💳</div><h2>Payments</h2><p>Pay for jobs by e-payment or bank transfer and view payment history.</p><a class="btn" href="payments.html">Payment Center →</a></div>
+</section>
+
+<section class="section quick-info">
+<h2>How Work Place works</h2>
+<div class="info-grid"><div><b>1. Post</b><p>Set your job, price, location and deadline.</p></div><div><b>2. Choose</b><p>Workers review the job and accept if interested.</p></div><div><b>3. Confirm</b><p>Review the worker profile and confirm the assignment.</p></div><div><b>4. Complete</b><p>Track the job and finish through Work Place.</p></div></div>
+</section>
+
+<section id="jobForm" class="section hidden">
+<h2>Post a New Job</h2><div class="notice">You can post virtual/online or physical/local work. Payment options are available from the Payment Center.</div>
+<form onsubmit="postJob(event)" class="form-grid">
+<div class="field"><label>Job Title</label><input name="title" placeholder="e.g. House Cleaning"></div>
+<div class="field"><label>Category</label><select name="category"><option value="">Select category</option><option>Virtual / Online</option><option>Cleaning</option><option>Electrician</option><option>Plumbing</option><option>Delivery</option><option>Construction</option><option>Gardening</option><option>Photography</option><option>Other</option></select></div>
+<div class="field full"><label>Description</label><textarea name="description" placeholder="Describe the work clearly..."></textarea></div>
+<div class="field"><label>Job Photo(s)</label><input name="photos" type="file" accept="image/*" multiple><small class="muted">Prototype limit: 5 photos, 5 MB each.</small></div>
+<div class="field"><label>Job Video</label><input name="video" type="file" accept="video/*"><small class="muted">Prototype limit: 1 video, 25 MB.</small></div>
+<div class="field"><label>Price (৳)</label><input name="price" type="number" min="0" placeholder="1500"></div>
+<div class="field"><label>Location</label><input name="location" placeholder="City / area / Online"></div>
+<div class="field"><label>Deadline</label><input name="deadline" type="date"></div>
+<div class="field full"><button class="btn btn-green" type="submit">Post Job</button> <button class="btn btn-light" type="button" onclick="closePostForm()">Cancel</button></div>
+</form></section>
+</main>
+<footer class="footer"><h2>Work Place</h2><p>Find Work. Post Work. Get Things Done.</p><div style="margin-top:12px"><b>Contact Support:</b> <a id="supportEmailLink" href="mailto:support@workplace.example">support@workplace.example</a></div></footer>
+<script src="script.js"></script>
+<script>document.addEventListener('DOMContentLoaded',()=>{const e=document.getElementById('supportEmailLink');let cfg={};try{cfg=JSON.parse(localStorage.getItem('workPlaceSupportSettings')||'{}')}catch{}if(e&&cfg.email){e.textContent=cfg.email;e.href='mailto:'+cfg.email}})</script></body></html>

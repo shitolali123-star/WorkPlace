@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entertainment — Work Place</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="ent-page">
+<nav class="navbar">
+  <a class="logo" href="index.html"><img src="assets/work-place-logo.png" alt="Work Place" class="brand-logo"></a>
+  <div class="navlinks">
+    <a href="index.html">Home</a><a href="find-jobs.html">Jobs</a><a href="worker.html">Workers</a>
+    <a href="entertainment.html">Entertainment</a><a href="advertisement.html">Advertisement</a><a href="payments.html">Payments</a>
+    <a href="appeal-history.html">Appeals</a><a href="messaging.html" class="message-nav" title="Messaging">💬</a>
+    <a class="coin-nav" href="coins.html" title="Coins & Rewards"><img src="assets/work-place-coin-logo.png" alt="Coins"></a><div class="notification-wrap"><button class="notification-button" type="button" aria-label="Notifications" title="Notifications">🔔<span class="notification-count" style="display:none">0</span></button><div class="notification-panel"><div class="notification-head"><b>Notifications</b><button type="button" onclick="markAllNotificationsRead()">Mark all read</button></div><div class="notification-list"><div class="notification-empty">Loading…</div></div></div></div>
+  </div>
+  <div class="user-area"><a class="profile-icon-link" href="profile.html" title="Profile" aria-label="Profile">👤</a><a class="btn login-link" href="login.html">Login / Sign Up</a></div>
+</nav>
+
+<main class="ent-shell ent-shell-home">
+  <aside class="ent-sidebar section">
+    <h3>Entertainment</h3>
+    <a class="active" href="entertainment.html">🏠 <span>Home</span></a>
+    <a href="#videos" onclick="return showEntertainmentSection('Videos')">🎞️ <span>Videos</span></a>
+    <a href="reels.html">🎬 <span>Reels</span></a>
+    <a href="#following" onclick="return showEntertainmentSection('Following')">👥 <span>Following</span></a>
+    <a href="#trending" onclick="return showEntertainmentSection('Trending')">🔥 <span>Trending</span></a>
+    <a href="#teaching" onclick="return showEntertainmentSection('Teaching')">📚 <span>Teaching</span></a>
+    <a href="#live" onclick="return showLiveSection()">🔴 <span>Live Video</span></a>
+    <a href="#saved" onclick="return showStored('saved','Saved')">🔖 <span>Saved</span></a>
+    <a href="#liked" onclick="return showStored('liked','Liked')">❤️ <span>Liked</span></a>
+    <a href="#history" onclick="return showStored('history','History')">🕘 <span>History</span></a>
+    <a href="channel.html">📺 <span>Your Channel</span></a>
+  </aside>
+
+  <section class="ent-content">
+    <div class="ent-head">
+      <div><span class="eyebrow">WORK PLACE ENTERTAINMENT</span><h1 id="feedTitle">Home</h1><p>Videos, Reels, live content and category-based entertainment in one place.</p></div>
+      <div class="ent-search"><input id="videoSearch" placeholder="Search videos…" oninput="searchVideos(this.value)"></div>
+    </div>
+
+    <section class="create-share-box ent-create-share" aria-label="Create & Share">
+      <div class="create-share-title">Create &amp; Share</div>
+      <div class="create-share-actions">
+        <a href="upload-video.html?type=Video" class="create-share-btn">🎥 <span>Post Video</span></a>
+        <a href="upload-video.html?type=Reel" class="create-share-btn">🎬 <span>Post Reels</span></a>
+        <a href="upload-video.html?type=Teaching%20Video" class="create-share-btn">📚 <span>Post Teaching Video</span></a>
+        <a href="live.html" class="create-share-btn live-create">🔴 <span>Go Live</span></a>
+      </div>
+    </section>
+
+    <section class="ent-section" id="videos">
+      <div class="ent-section-head"><div><h2>Videos</h2><p>Fresh videos from Work Place creators.</p></div><button class="text-link" onclick="addMoreCategory('Videos')">Load more</button></div>
+      <div class="ent-video-row" id="videoRow"></div>
+    </section>
+
+    <section class="ent-section live-home-section" id="live"><div class="ent-section-head"><div><h2>🔴 Live</h2><p>Live streams by category.</p></div><a class="text-link" href="live.html">Go Live →</a></div><div class="live-category-bar" id="liveCategories"></div><div class="ent-video-row live-row" id="liveRow"></div></section>
+
+    <section class="ent-section reels-home-section" id="reelsHome">
+      <div class="ent-section-head"><div><h2>Reels</h2><p>Short vertical videos. Open one to continue continuously.</p></div><a class="text-link" href="reels.html">See All Reels →</a></div>
+      <div class="ent-reel-row" id="reelRow"></div>
+    </section>
+
+    <section class="category-area" id="categoryArea"></section>
+  </section>
+
+  <aside class="ent-right">
+    <div class="reward-box section"><div class="reward-title">🪙 Active Watch Reward</div><div><b id="rewardRate">10 sec = 1 coin</b></div><div class="progress"><span id="rewardBar"></span></div><small id="rewardStatus">Play a video to start earning.</small><b id="rewardEarned">0 coins this session</b></div>
+    <div class="sponsor-card section"><span>SPONSORED</span><h3>Advertisement</h3><p>Work Place sponsored content appears here.</p></div>
+  </aside>
+</main>
+
+<script src="script.js"></script>
+<script>
+const categoryNames=['News','Industrial','Entertainment','Web Series','Natok','Movie','Sports','Technology','Education','Music','Comedy','Documentary','Lifestyle','Cooking','Travel','Gaming','Health','Agriculture','Jobs & Skills','Science','Religion','Fashion','Business','Automotive','Kids','Animation'];
+const creators=['Work Place Studio','Community TV','Work Place Media','Creator Hub','Skill Builder','Work Place Academy'];
+const titles=['Latest update from the community','Practical skills and useful ideas','A new story from Work Place','What people are watching today','Complete guide for beginners','Interesting facts and discussion','New episode and highlights','Creative ideas for everyday life'];
+let videoCounter=1;
+let categoryCounts={};
+let activeSearch='';
+
+function makeVideo(category,index){
+  const id=videoCounter++;
+  return {id,title:(titles[(id+index)%titles.length])+' — '+category,category,creator:creators[id%creators.length],views:1200+(id*731)%180000,likes:100+(id*37)%12000,duration:(8+(id%42))+':'+String((id*13)%60).padStart(2,'0'),desc:'Work Place '+category+' video with useful, original and authorized content.'};
+}
+const videos=[];
+categoryNames.forEach((cat,ci)=>{categoryCounts[cat]=8;for(let i=0;i<8;i++)videos.push(makeVideo(cat,i+ci));});
+const reels=[
+ {id:101,title:'Quick Work Tip',creator:'Work Place Academy',likes:920,comments:88},
+ {id:102,title:'Creative Design Reel',creator:'Creator Hub',likes:670,comments:64},
+ {id:103,title:'Easy Online Work Tip',creator:'Skill Builder',likes:1540,comments:120},
+ {id:104,title:'Today in Work Place',creator:'Community TV',likes:840,comments:76},
+ {id:105,title:'Fast Tech Idea',creator:'Work Place Media',likes:1190,comments:93},
+ {id:106,title:'Cooking in 30 Seconds',creator:'Work Place Studio',likes:740,comments:51}
+];
+
+function thumb(v){return `<div class="ent-thumb"><div class="thumb-play">▶</div><span class="duration">${v.duration}</span><span class="thumb-label">${v.category}</span></div>`}
+function videoCard(v){return `<article class="ent-mini-video-card" onclick="openVideo(${v.id})"><div class="ent-media">${thumb(v)}</div><div class="mini-info"><span class="status-pill">${v.category}</span><h3>${escapeHtml(v.title)}</h3><p>${escapeHtml(v.creator)} · 👁 ${v.views.toLocaleString()}</p></div></article>`}
+function reelCard(r){return `<article class="ent-home-reel" onclick="openReel(${r.id})"><div class="home-reel-thumb"><span>▶</span><small>REEL</small></div><b>${escapeHtml(r.title)}</b><small>${escapeHtml(r.creator)}</small></article>`}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function openVideo(id){location.href='video.html?id='+id}
+function openReel(id){location.href='reels.html?reel='+id}
+function categoryBlock(cat){const items=videos.filter(v=>v.category===cat && (!activeSearch || (v.title+' '+v.creator+' '+v.category+' '+v.desc).toLowerCase().includes(activeSearch)));return `<section class="category-section" id="cat-${encodeURIComponent(cat)}"><div class="ent-section-head"><div><h2>${escapeHtml(cat)}</h2><p>More ${escapeHtml(cat)} videos</p></div><button class="text-link" onclick="addMoreCategory('${escapeHtml(cat)}')">Load more</button></div><div class="ent-video-row" data-category="${escapeHtml(cat)}">${items.map(videoCard).join('')}</div></section>`}
+function getLiveStreams(){try{return JSON.parse(localStorage.getItem('wp_liveStreams')||'[]')}catch{return[]}}
+function renderLive(category='All'){const live=getLiveStreams().filter(x=>x.active!==false&&(category==='All'||x.category===category));const liveCategories=['All','Gaming','News','Movie','Natok','Entertainment','Sports','Technology','Education','Music','Comedy','Documentary','Lifestyle','Cooking','Travel','Health','Agriculture','Jobs & Skills','Science','Business','Automotive'];const cb=document.getElementById('liveCategories');if(cb)cb.innerHTML=liveCategories.map(c=>`<button class="live-cat ${c===category?'active':''}" onclick="renderLive('${escapeHtml(c)}')">${escapeHtml(c)}</button>`).join('');const row=document.getElementById('liveRow');if(row)row.innerHTML=live.length?live.map(x=>`<article class="live-card"><div class="live-thumb">🔴 LIVE</div><div class="mini-info"><span class="status-pill">${escapeHtml(x.category)}</span><h3>${escapeHtml(x.title)}</h3><p>${escapeHtml(x.creator||'Work Place Creator')} · ${escapeHtml(x.viewers||'Live now')}</p><a class="btn smallbtn" href="live.html?view=${encodeURIComponent(x.id)}">Watch Live</a></div></article>`).join(''):'<div class="empty">No live streams are active in this category right now.</div>'}
+function renderHome(){document.getElementById('videoRow').innerHTML=videos.slice(0,8).map(videoCard).join('');document.getElementById('reelRow').innerHTML=reels.map(reelCard).join('');document.getElementById('categoryArea').innerHTML=categoryNames.map(categoryBlock).join('');renderLive()}
+function showLiveSection(){document.getElementById('feedTitle').textContent='Live';document.getElementById('live').scrollIntoView({behavior:'smooth'});return false}
+function addMoreCategory(cat){const count=categoryCounts[cat]||8;for(let i=0;i<8;i++)videos.push(makeVideo(cat,count+i));categoryCounts[cat]=count+8;const block=document.querySelector('#cat-'+encodeURIComponent(cat)+' .ent-video-row');if(block){const items=videos.filter(v=>v.category===cat && (!activeSearch || (v.title+' '+v.creator+' '+v.category+' '+v.desc).toLowerCase().includes(activeSearch)));block.innerHTML=items.map(videoCard).join('')}else if(cat==='Videos'){document.getElementById('videoRow').innerHTML=videos.slice(0,categoryCounts[cat]).map(videoCard).join('')}}
+function searchVideos(q){activeSearch=q.toLowerCase().trim();document.getElementById('feedTitle').textContent=activeSearch?'Search results':'Home';const all=videos.filter(v=>(v.title+' '+v.creator+' '+v.category+' '+v.desc).toLowerCase().includes(activeSearch));document.getElementById('videoRow').innerHTML=all.slice(0,12).map(videoCard).join('')||'<div class="empty">No videos found.</div>';document.getElementById('categoryArea').innerHTML=categoryNames.map(categoryBlock).join('')}
+function showEntertainmentSection(title){document.getElementById('feedTitle').textContent=title;document.querySelectorAll('.ent-sidebar a').forEach(a=>a.classList.remove('active'));return false}
+function showStored(k,title){document.getElementById('feedTitle').textContent=title;const ids=(()=>{try{return JSON.parse(localStorage.getItem('wp_'+k)||'[]')}catch{return[]}})();const list=videos.filter(v=>ids.includes(v.id));document.getElementById('videoRow').innerHTML=list.length?list.map(videoCard).join(''):'<div class="empty">No saved records yet.</div>';return false}
+renderHome();
+</script>
+</body></html>
